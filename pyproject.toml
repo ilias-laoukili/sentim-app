@@ -1,0 +1,86 @@
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.venv
+  | build
+  | dist
+  | data
+  | models
+  | notebooks
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip_gitignore = true
+known_first_party = ["src"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+exclude = [
+    "notebooks/",
+    "data/",
+    "models/",
+]
+
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sentim-app"
+version = "1.0.0"
+description = "AI-Powered Audio Emotion Analysis"
+readme = "README.md"
+requires-python = ">=3.9,<3.13"
+license = {text = "MIT"}
+authors = [
+    {name = "Ilias Laoukili"}
+]
+keywords = ["emotion", "audio", "dsp", "machine-learning", "streamlit"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "numpy>=1.24.0,<2.0.0",
+    "scipy>=1.10.0,<2.0.0",
+    "scikit-learn>=1.3.0,<1.6.0",
+    "librosa>=0.10.0,<0.11.0",
+    "soundfile>=0.12.0",
+    "audioread>=3.0.0",
+    "joblib>=1.3.0",
+    "matplotlib>=3.7.0,<4.0.0",
+    "streamlit>=1.28.0,<2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/ilias-laoukili/sentim-app"
+Repository = "https://github.com/ilias-laoukili/sentim-app"

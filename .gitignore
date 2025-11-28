@@ -1,0 +1,87 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# === Virtual Environments ===
+venv/
+.venv/
+env/
+ENV/
+
+# === Testing & Coverage ===
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# === Jupyter Notebooks ===
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+profile_default/
+ipython_config.py
+
+# === LaTeX (Report) ===
+*.aux
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.pdf
+# Allow final report PDF to be committed
+!report/Signal_Processing___Project/main.pdf
+texput.log
+
+# === IDEs & Editors ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# === OS Files ===
+# macOS
+.DS_Store
+# Windows
+Thumbs.db
+Desktop.ini
+
+# === Models & Data ===
+# Ignore large binary models, but keep the folder structure
+models/*
+!models/.gitkeep
+!models/ravdess_model.joblib
+
+# Ignore raw data
+data/*
+!data/README.md
+!data/course_ressources/
+
+# === Logs ===
+*.log

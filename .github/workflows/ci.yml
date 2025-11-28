@@ -1,0 +1,155 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        lfs: true
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg libsndfile1
+    
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+
+    - name: Show environment details
+      run: |
+        python --version
+        pip freeze | sort
+    
+    - name: Lint with flake8
+      run: |
+        flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 src --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
+    
+    - name: Format check with black
+      run: black --check src/
+    
+    - name: Run tests
+      run: |
+        export PYTHONPATH=$PYTHONPATH:.
+        pytest --cov=src --cov-report=xml
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  build-docker:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build Docker image
+      run: docker build -t sentim-app:latest .
+    
+    - name: Test Docker container
+      run: |
+        docker run -d -p 7860:7860 --name sentim-test sentim-app:latest
+        # Allow more time for app startup
+        sleep 30
+        curl -f http://localhost:7860/_stcore/health || exit 1
+        docker stop sentim-test
+
+  deploy-to-hf:
+    needs: [test, build-docker]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+          
+      - name: Install Python deps for HF API
+        run: |
+          python -m pip install --upgrade pip
+          pip install huggingface_hub==0.22.0
+
+      - name: Deploy to Hugging Face Space via API
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE_NAME: sentim-app
+          HF_USERNAME: ilias-laoukili
+        run: |
+          python - << 'PY'
+          import os
+          from huggingface_hub import upload_file, upload_folder
+
+          token = os.environ.get("HF_TOKEN")
+          space_id = f"{os.environ.get('HF_USERNAME')}/{os.environ.get('HF_SPACE_NAME')}"
+
+          # Upload individual files first
+          upload_file(
+              path_or_fileobj="Dockerfile",
+              path_in_repo="Dockerfile",
+              repo_id=space_id,
+              repo_type="space",
+              token=token,
+          )
+          upload_file(
+              path_or_fileobj="requirements.txt",
+              path_in_repo="requirements.txt",
+              repo_id=space_id,
+              repo_type="space",
+              token=token,
+          )
+
+          # Upload folders recursively (exclude large model directory contents if needed)
+          upload_folder(
+              folder_path="src",
+              path_in_repo="src",
+              repo_id=space_id,
+              repo_type="space",
+              token=token,
+          )
+          upload_folder(
+              folder_path="scripts",
+              path_in_repo="scripts",
+              repo_id=space_id,
+              repo_type="space",
+              token=token,
+          )
+          print("Deployment to Space completed via API uploads.")
+          PY
