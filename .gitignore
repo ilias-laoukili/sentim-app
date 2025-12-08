@@ -72,12 +72,6 @@ texput.log
 Thumbs.db
 Desktop.ini
 
-# === Models & Data ===
-# Ignore large binary models, but keep the folder structure
-models/*
-!models/.gitkeep
-!models/ravdess_model.joblib
-
 # Ignore raw data
 data/*
 !data/README.md
