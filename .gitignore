@@ -27,27 +27,29 @@ venv/
 env/
 ENV/
 
-# === Testing & Coverage ===
-.coverage
-.coverage.*
-htmlcov/
-.pytest_cache/
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
+# === Streamlit ===
+.streamlit/secrets.toml
 
-# === Jupyter Notebooks ===
-.ipynb_checkpoints
-*/.ipynb_checkpoints/*
-profile_default/
-ipython_config.py
+# === macOS ===
+.DS_Store
 
-# === LaTeX (Report) ===
-*.aux
-*.bbl
-*.blg
-*.fls
+# === Development (not needed in production) ===
+tests/
+pytest.ini
+requirements-dev.txt
+notebooks/
+scripts/
+report/
+Dockerfile
+docker-compose.yml
+.dockerignore
+config.yaml
+pyproject.toml
+.python-version
+
+# === Large Data Files ===
+data/raw/
+data/course_ressources/
 *.fdb_latexmk
 *.log
 *.out
