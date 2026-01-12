@@ -131,6 +131,19 @@ The app will open in your browser at `http://localhost:8501`.
 
 ## 📚 Documentation
 
+### Sphinx docs
+
+Build the API and module documentation locally:
+
+```bash
+pip install -r docs/requirements.txt
+make -C docs html
+open docs/_build/html/index.html
+```
+
+The Sphinx configuration at `docs/conf.py` autodiscovers modules from `src/` and renders both
+reStructuredText and MyST Markdown sources.
+
 ### Project Structure
 
 ```
