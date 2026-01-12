@@ -37,7 +37,6 @@ ENV/
 tests/
 pytest.ini
 requirements-dev.txt
-notebooks/
 scripts/
 report/
 Dockerfile
